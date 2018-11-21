@@ -44,7 +44,12 @@ protected:
 	virtual void JumpStopAction();
 	virtual void IncreaseConnectionAction();
 
+	void WallRunActivate();
+	void WallRunDeactivate();
+
 	void LineTraceWalls();
+	void WallRun();
+	void SetWallRunLocation();
 
 	UPROPERTY(EditAnywhere)
 		USpringArmComponent* CameraBoom;
@@ -60,7 +65,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 		FTimerHandle JumpTimer;
 	UPROPERTY(EditAnywhere)
-		FTimerHandle FlyTimer;
+		FTimerHandle WallRunTimer;
 
 	///States:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")

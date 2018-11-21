@@ -24,8 +24,8 @@ ATestPersone::ATestPersone()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	Camera->SetupAttachment(CameraBoom);
 
-	
-	
+	GetWorld()->GetTimerManager().SetTimer(WallRunTimer, &ATestPersone::SetWallRunLocation, 1.0f, true);
+	GetWorld()->GetTimerManager().PauseTimer(WallRunTimer);
 }
 
 // Called when the game starts or when spawned
@@ -83,14 +83,12 @@ void ATestPersone::CalculateVectors()
 void ATestPersone::JumpAction()
 {
 	CurConnectionDelta = 10.0f;
-	//bool WallJump = false;
 	if (IsWallRunning)
 	{
 		FVector LaunchVelocity = HitWallNormal * 600.0f;
 		LaunchVelocity.Z = 250;
 		LaunchCharacter(LaunchVelocity, false, false);
 		IsWallRunning = false;
-		//WallJump = true;
 		return;
 	}
 	else
@@ -103,17 +101,10 @@ void ATestPersone::JumpAction()
 				LaunchVelocity.Z = 250;
 				LaunchCharacter(LaunchVelocity, false, false);
 				return;
-				//WallJump = true;
 			}
 		}
 	}
 	Jump();
-	/*
-	if (!WallJump)
-	{
-		Jump();
-	}
-	*/
 }
 
 void ATestPersone::JumpStopAction()
@@ -124,6 +115,16 @@ void ATestPersone::JumpStopAction()
 
 void ATestPersone::IncreaseConnectionAction()
 {
+}
+
+void ATestPersone::WallRunActivate()
+{
+	WallRunActivity = true;
+}
+
+void ATestPersone::WallRunDeactivate()
+{
+	WallRunActivity = false;
 }
 
 void ATestPersone::LineTraceWalls()
@@ -173,11 +174,44 @@ void ATestPersone::LineTraceWalls()
 	}
 }
 
+void ATestPersone::WallRun()
+{
+	if (IsWallRunning)
+	{
+		LaunchCharacter(GetActorForwardVector()*900.0f, true, true);
+	}
+	if (WallRunActivity && (HitWallLeft || HitWallRight))
+	{
+		if (!IsWallRunning)
+		{
+			IsWallRunning = true;
+			GetCharacterMovement()->GravityScale = 0.0f;
+			SetWallRunLocation();
+			GetWorld()->GetTimerManager().UnPauseTimer(WallRunTimer);
+		}
+	}
+	else
+	{
+		if (IsWallRunning)
+		{
+			IsWallRunning = false;
+			GetCharacterMovement()->GravityScale = 1.0f;
+			GetWorld()->GetTimerManager().PauseTimer(WallRunTimer);
+		}
+	}
+}
+
+void ATestPersone::SetWallRunLocation()
+{
+	SetActorLocation(HitWallLocation + HitWallNormal * 40.0f);
+}
+
 // Called every frame
 void ATestPersone::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	CalculateVectors();
+	LineTraceWalls();
 }
 
 // Called to bind functionality to input
@@ -190,6 +224,8 @@ void ATestPersone::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAxis("LookUp", this, &ATestPersone::LookUp);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ATestPersone::JumpAction);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ATestPersone::JumpStopAction);
+	PlayerInputComponent->BindAction("WallRun", IE_Pressed, this, &ATestPersone::WallRunActivate);
+	PlayerInputComponent->BindAction("WallRun", IE_Released, this, &ATestPersone::WallRunDeactivate);
 }
 
 void ATestPersone::PostInitProperties()
