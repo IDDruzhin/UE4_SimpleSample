@@ -44,12 +44,14 @@ protected:
 	virtual void JumpStopAction();
 	virtual void IncreaseConnectionAction();
 
-	void WallRunActivate();
-	void WallRunDeactivate();
+	virtual void WallRunActivate();
+	virtual void WallRunDeactivate();
 
 	void LineTraceWalls();
 	void WallRun();
-	void SetWallRunLocation();
+
+	UFUNCTION()
+		void SetWallRunLocation();
 
 	UPROPERTY(EditAnywhere)
 		USpringArmComponent* CameraBoom;

@@ -24,15 +24,19 @@ ATestPersone::ATestPersone()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
 	Camera->SetupAttachment(CameraBoom);
 
-	GetWorld()->GetTimerManager().SetTimer(WallRunTimer, &ATestPersone::SetWallRunLocation, 1.0f, true);
-	GetWorld()->GetTimerManager().PauseTimer(WallRunTimer);
+	//GetWorld()->GetTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
+	//GetWorldTimerManager().SetTimer(WallRunTimer, &ATestPersone::SetWallRunLocation, 1.0f, true);
+	//GetWorldTimerManager().PauseTimer(WallRunTimer);
 }
 
 // Called when the game starts or when spawned
 void ATestPersone::BeginPlay()
 {
 	Super::BeginPlay();
-	FTimerDelegate TimerD;
+	GetWorldTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
+	GetWorldTimerManager().PauseTimer(WallRunTimer);
+	//FTimerDelegate TimerD;
+	//GetWorldTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
 	/*
 	TimerD.BindUFunction(this, FName("TestFoo"), 10.0f);
 	GetWorld()->GetTimerManager().SetTimer(JumpTimer, TimerD, 1.0f, true);
@@ -47,7 +51,7 @@ void ATestPersone::OnJumped_Implementation()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::FromInt((int)(DoJump)));
 	DoJump = true;
-	GetWorld()->GetTimerManager().SetTimer(JumpTimer, [this]() { DoJump = false; }, 0.1f, false);
+	GetWorldTimerManager().SetTimer(JumpTimer, [this]() { DoJump = false; }, 0.1f, false);
 }
 
 void ATestPersone::MoveForward(float v)
@@ -174,6 +178,7 @@ void ATestPersone::LineTraceWalls()
 	}
 }
 
+
 void ATestPersone::WallRun()
 {
 	if (IsWallRunning)
@@ -212,6 +217,7 @@ void ATestPersone::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	CalculateVectors();
 	LineTraceWalls();
+	WallRun();
 }
 
 // Called to bind functionality to input
