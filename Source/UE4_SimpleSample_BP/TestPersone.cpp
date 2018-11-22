@@ -33,8 +33,8 @@ ATestPersone::ATestPersone()
 void ATestPersone::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorldTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
-	GetWorldTimerManager().PauseTimer(WallRunTimer);
+	//GetWorldTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
+	//GetWorldTimerManager().PauseTimer(WallRunTimer);
 	//FTimerDelegate TimerD;
 	//GetWorldTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
 	/*
@@ -133,6 +133,8 @@ void ATestPersone::WallRunDeactivate()
 
 void ATestPersone::LineTraceWalls()
 {
+	HitWallLeft = false;
+	HitWallRight = false;
 	FVector Start = GetActorLocation();
 	FVector End = Start + GetActorForwardVector() * 70.0f;
 	FHitResult Hit;
@@ -141,39 +143,21 @@ void ATestPersone::LineTraceWalls()
 	{
 		HitWallNormal = Hit.Normal;
 		HitWallLocation = Hit.Location;
-		HitWallLeft = false;
-		HitWallRight = false;
 	}
-	else
+	Start = Start - GetActorRightVector() * 70.0f;
+	End = GetActorLocation() + GetActorRightVector() * 70.0f;
+	if (GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ECC_WorldStatic))
 	{
-		Start = Start - GetActorRightVector() * 70.0f;
-		End = GetActorLocation() + GetActorRightVector() * 70.0f;
-		if (GetWorld()->LineTraceSingleByObjectType(Hit, Start, End, ECC_WorldStatic))
+		HitWallLocation = Hit.Location;
+		if (Hit.Time < 0.5f)
 		{
-			HitWallLocation = Hit.Location;
-			if (Hit.Time < 0.5f)
-			{
-				HitWallLeft = true;
-				HitWallRight = false;
-				HitWallNormal = -Hit.Normal;
-			}
-			else
-			{
-				HitWallLeft = false;
-				HitWallRight = true;
-				HitWallNormal = Hit.Normal;
-			}
+			HitWallLeft = true;
+			HitWallNormal = -Hit.Normal;
 		}
-	}
-	if (WallRunActivity)
-	{
-		if (HitWallLeft)
+		else
 		{
-			SetActorRotation(UKismetMathLibrary::MakeRotFromXY(GetActorForwardVector(), HitWallNormal));
-		}
-		else if (HitWallRight)
-		{
-			SetActorRotation(UKismetMathLibrary::MakeRotFromXY(GetActorForwardVector(), -HitWallNormal));
+			HitWallRight = true;
+			HitWallNormal = Hit.Normal;
 		}
 	}
 }
@@ -181,34 +165,45 @@ void ATestPersone::LineTraceWalls()
 
 void ATestPersone::WallRun()
 {
-	if (IsWallRunning)
-	{
-		LaunchCharacter(GetActorForwardVector()*900.0f, true, true);
-	}
 	if (WallRunActivity && (HitWallLeft || HitWallRight))
 	{
-		if (!IsWallRunning)
+		if (!WallRunFlag)
 		{
 			IsWallRunning = true;
 			GetCharacterMovement()->GravityScale = 0.0f;
 			SetWallRunLocation();
-			GetWorld()->GetTimerManager().UnPauseTimer(WallRunTimer);
+			GetWorldTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
+			WallRunFlag = true;
 		}
 	}
 	else
 	{
-		if (IsWallRunning)
+		if (WallRunFlag)
 		{
 			IsWallRunning = false;
 			GetCharacterMovement()->GravityScale = 1.0f;
 			GetWorld()->GetTimerManager().PauseTimer(WallRunTimer);
+			WallRunFlag = false;
 		}
+	}
+	if (IsWallRunning)
+	{
+		if (HitWallLeft)
+		{
+			SetActorRotation(UKismetMathLibrary::MakeRotFromYX(HitWallNormal, GetActorForwardVector()));
+		}
+		else if (HitWallRight)
+		{
+			SetActorRotation(UKismetMathLibrary::MakeRotFromYX(-HitWallNormal, GetActorForwardVector()));
+		}
+		LaunchCharacter(GetActorForwardVector()*900.0f, true, true);
 	}
 }
 
 void ATestPersone::SetWallRunLocation()
 {
 	SetActorLocation(HitWallLocation + HitWallNormal * 40.0f);
+	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Correct"));
 }
 
 // Called every frame

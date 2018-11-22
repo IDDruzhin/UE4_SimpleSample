@@ -123,6 +123,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
 		FVector GrapplePoint;
 
+	///Misc:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Misc")
+		bool WallRunFlag;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
