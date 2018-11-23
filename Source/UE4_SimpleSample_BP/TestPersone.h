@@ -52,11 +52,26 @@ protected:
 
 	UFUNCTION()
 		void SetWallRunLocation();
+	UFUNCTION()
+		void SearchHook();
 
+	///Components:
 	UPROPERTY(EditAnywhere)
 		USpringArmComponent* CameraBoom;
 	UPROPERTY(EditAnywhere)
 		UCameraComponent* Camera;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USkeletalMeshComponent* R_Hand;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		USkeletalMeshComponent* L_Hand;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UAnimBlueprintGeneratedClass* DynamicBP;
+			
+	UPROPERTY(EditAnywhere)
+		UCableComponent* R_Link;
+	UPROPERTY(EditAnywhere)
+		UCableComponent* L_Link;
 
 	UPROPERTY(EditAnywhere)
 		FVector Forward;

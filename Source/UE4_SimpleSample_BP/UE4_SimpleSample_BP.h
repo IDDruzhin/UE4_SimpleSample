@@ -12,5 +12,7 @@
 #include "Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstance.h"
+//#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
+#include "CableComponent.h"
 #include "Engine.h"
 

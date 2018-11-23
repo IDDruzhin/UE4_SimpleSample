@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TestPersone.h"
+//#include "CableComponent.h"
 //#include "UE4_SimpleSample_BP.h"
 
 
@@ -21,7 +22,72 @@ ATestPersone::ATestPersone()
 	CameraBoom->TargetArmLength = 300.f;
 	CameraBoom->bUsePawnControlRotation = true;
 
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComponent"));
+	GetMesh()->SetRelativeLocation(FVector(2.322250f, -0.000035f, -87.684875f));
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+
+	R_Hand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("R_Hand"));
+	R_Hand->SetupAttachment(GetMesh());
+	L_Hand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("L_Hand"));
+	L_Hand->SetupAttachment(GetMesh());
+
+	R_Link = CreateDefaultSubobject<UCableComponent>(TEXT("R_Link"));
+	R_Link->AttachTo(R_Hand, FName(TEXT("R_ForeArm_00Socket")));
+	R_Link->bAttachStart = true;
+	R_Link->bAttachEnd = true;
+	R_Link->SetAttachEndTo(this, FName(TEXT("Mesh")), FName(TEXT("R_Hand")));
+	R_Link->EndLocation = FVector(0.0f, -0.2f, 0.0f);
+	R_Link->CableLength = 10.0f;
+	R_Link->CableWidth = 1.0f;
+	R_Link->NumSegments = 1;
+	R_Link->NumSides = 6;
+	R_Link->RelativeLocation = FVector(-0.0f, 0.131005f, -0.122708f);
+	R_Link->RelativeRotation = FRotator(0.0f, 0.00001f, 0.0f);
+
+	L_Link = CreateDefaultSubobject<UCableComponent>(TEXT("L_Link"));
+	L_Link->AttachTo(L_Hand, FName(TEXT("L_Arm_00")));
+	L_Link->bAttachStart = true;
+	L_Link->bAttachEnd = true;
+	L_Link->SetAttachEndTo(this, FName(TEXT("Mesh")), FName(TEXT("L_Arm_01")));
+	L_Link->EndLocation = FVector(1.1f, 0.0f, 0.0f);
+	L_Link->CableLength = 10.0f;
+	L_Link->CableWidth = 1.0f;
+	L_Link->NumSegments = 1;
+	L_Link->NumSides = 6;
+	L_Link->RelativeLocation = FVector(0.300961f, 0.080305f, 0.101101f);
+
+	//USkeletalMesh* Tmp = LoadObject<USkeletalMesh>(NULL, TEXT("RHandMesh"), TEXT("/Content/Characters/Meshes/Test_Persone_R_Hand.uasset"));
+	//R_Hand->SetSkeletalMesh(Tmp);
+	{
+		ConstructorHelpers::FObjectFinder<USkeletalMesh> Tmp(TEXT("SkeletalMesh'/Game/Characters/Meshes/Test_Persone_Body.Test_Persone_Body'"));
+		GetMesh()->SetSkeletalMesh(Tmp.Object);
+		Tmp = ConstructorHelpers::FObjectFinder<USkeletalMesh>(TEXT("SkeletalMesh'/Game/Characters/Meshes/Test_Persone_R_Hand.Test_Persone_R_Hand'"));
+		R_Hand->SetSkeletalMesh(Tmp.Object);
+		Tmp = ConstructorHelpers::FObjectFinder<USkeletalMesh>(TEXT("SkeletalMesh'/Game/Characters/Meshes/Test_Persone_L_Hand.Test_Persone_L_Hand'"));
+		L_Hand->SetSkeletalMesh(Tmp.Object);
+	}
+	{
+		ConstructorHelpers::FObjectFinder<UAnimBlueprint> Tmp(TEXT("AnimBlueprint'/Game/Characters/Anims/Test_Persone_Anim_BP.Test_Persone_Anim_BP'"));
+		DynamicBP = Tmp.Object->GetAnimBlueprintGeneratedClass();
+		GetMesh()->SetAnimInstanceClass(DynamicBP);
+		R_Hand->SetAnimInstanceClass(DynamicBP);
+		L_Hand->SetAnimInstanceClass(DynamicBP);
+		//GetMesh()->SetAnimInstanceClass(Tmp.Object->GetAnimBlueprintGeneratedClass());
+		//R_Hand->SetAnimInstanceClass(Tmp.Object->GetAnimBlueprintGeneratedClass());
+		//L_Hand->SetAnimInstanceClass(Tmp.Object->GetAnimBlueprintGeneratedClass());
+	}
+	{
+		ConstructorHelpers::FObjectFinder<UMaterial> Tmp(TEXT("Material'/Game/Characters/Meshes/LinkMaterial.LinkMaterial'"));
+		R_Link->SetMaterial(0, Tmp.Object);
+		L_Link->SetMaterial(0, Tmp.Object);
+	}
+	
+	//R_Hand->SetSkeletalMesh(Tmp.Object);
+	//R_Hand->SetSkeletalMesh(LoadObject<USkeletalMesh>(NULL, TEXT("RHandMesh"), TEXT("SkeletalMesh'/Game/Characters/Meshes/Test_Persone_R_Hand.Test_Persone_R_Hand'")));
+	//R_Hand->SetAnimInstanceClass(LoadObject<UAnimBlueprintGeneratedClass>(NULL, TEXT("RHandAnim"), TEXT("AnimBlueprint'/Game/Characters/Anims/Test_Persone_Anim_BP.Test_Persone_Anim_BP'")));
+
+	//R_Link = CreateDefaultSubobject<UCableComponent>(TEXT("R_Link"));
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CameraBoom);
 
 	//GetWorld()->GetTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
@@ -206,6 +272,12 @@ void ATestPersone::SetWallRunLocation()
 	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Correct"));
 }
 
+void ATestPersone::SearchHook()
+{
+	CanHook = false;
+	//UKismetSystemLibrary::SphereTraceMulti(GetWorld())
+}
+
 // Called every frame
 void ATestPersone::Tick(float DeltaTime)
 {
@@ -232,6 +304,7 @@ void ATestPersone::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 void ATestPersone::PostInitProperties()
 {
 	Super::PostInitProperties();
+	//GetMesh()->SetAnimInstanceClass(DynamicBP);
 	//CameraBoom->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 90.0f));
 }
 
