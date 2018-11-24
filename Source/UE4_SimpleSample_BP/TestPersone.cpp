@@ -9,6 +9,7 @@
 ATestPersone::ATestPersone()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+
 	PrimaryActorTick.bCanEverTick = true;
 	bUseControllerRotationYaw = false;
 	JumpMaxCount = 2;
@@ -99,6 +100,7 @@ ATestPersone::ATestPersone()
 void ATestPersone::BeginPlay()
 {
 	Super::BeginPlay();
+	GetWorldTimerManager().SetTimer(SearchHookTimer, this, &ATestPersone::SearchHook, 0.1f, true);
 	//GetWorldTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
 	//GetWorldTimerManager().PauseTimer(WallRunTimer);
 	//FTimerDelegate TimerD;
@@ -275,7 +277,57 @@ void ATestPersone::SetWallRunLocation()
 void ATestPersone::SearchHook()
 {
 	CanHook = false;
-	//UKismetSystemLibrary::SphereTraceMulti(GetWorld())
+	FVector Center = GetActorLocation() + GetActorForwardVector() * 1000.0f;
+	TArray<FHitResult> HitResults;
+	if (GetWorld()->SweepMultiByChannel(HitResults, Center, Center, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel1, FCollisionShape::MakeSphere(1000.0f)))
+	{	
+		TArray<TTuple<float, uint8>> HitResDistances;
+		for (int i = 0; i < HitResults.Num(); i++)
+		{
+			HitResDistances.Emplace(FVector::DistSquared(HitResults[i].GetActor()->GetActorLocation(), GetActorLocation()), i);
+		}
+		HitResDistances.Sort([](const TTuple<float, uint8> &A, const TTuple<float, uint8> &B) {
+			return ((A.Get<0>()) < (B.Get<0>()));
+		});
+		FHitResult LineHit;
+		AActor* CurCrappleHook;
+		FCollisionQueryParams CollParams;
+		CollParams.AddIgnoredActor(this);
+		for (int i = 0; i < HitResDistances.Num(); i++)
+		{
+			CurCrappleHook = HitResults[HitResDistances[i].Get<1>()].GetActor();
+			//if (!(GetWorld()->LineTraceSingleByChannel(LineHit, GetActorLocation(), CurCrappleHook->GetActorLocation(), ECollisionChannel::ECC_Visibility)))
+			//if (!(GetWorld()->LineTraceSingleByObjectType(LineHit, GetActorLocation(), CurCrappleHook->GetActorLocation(), ECC_WorldStatic)))
+			if (!(GetWorld()->LineTraceSingleByChannel(LineHit, GetActorLocation(), CurCrappleHook->GetActorLocation(), ECollisionChannel::ECC_Visibility)))
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("GOT"));
+				CanHook = true;
+				if (NearestGrappleHook != CurCrappleHook)
+				{
+					if (CurHookMatInst != nullptr)
+					{
+						CurHookMatInst->SetVectorParameterValue(FName(TEXT("Color")), FVector(0.0f, 0.0f, 1.0f));
+						CurHookMatInst->SetScalarParameterValue(FName(TEXT("Emissive")), 0.0f);
+					}
+					NearestGrappleHook = Cast<AGrappleHook>(CurCrappleHook);
+					CurHookMatInst = NearestGrappleHook->GetMaterialInstance();
+					CurHookMatInst->SetVectorParameterValue(FName(TEXT("Color")), FVector(0.0f, 1.0f, 0.0f));
+					CurHookMatInst->SetScalarParameterValue(FName(TEXT("Emissive")), 1000.0f);
+				}
+				break;
+			}
+		}
+	}
+	if (!CanHook)
+	{
+		if (CurHookMatInst != nullptr)
+		{
+			CurHookMatInst->SetVectorParameterValue(FName(TEXT("Color")), FVector(0.0f, 0.0f, 1.0f));
+			CurHookMatInst->SetScalarParameterValue(FName(TEXT("Emissive")), 0.0f);
+			CurHookMatInst = nullptr;
+		}
+		NearestGrappleHook = nullptr;
+	}
 }
 
 // Called every frame

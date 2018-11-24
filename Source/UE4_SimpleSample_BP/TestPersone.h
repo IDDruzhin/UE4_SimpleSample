@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "UE4_SimpleSample_BP.h"
+#include "GrappleHook.h"
 //#include "GameFramework/SpringArmComponent.h"
 //#include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 //#include "Runtime/Engine/Classes/Components/CapsuleComponent.h"
@@ -83,6 +84,8 @@ protected:
 		FTimerHandle JumpTimer;
 	UPROPERTY(EditAnywhere)
 		FTimerHandle WallRunTimer;
+	UPROPERTY(EditAnywhere)
+		FTimerHandle SearchHookTimer;
 
 	///States:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
@@ -112,9 +115,9 @@ protected:
 
 	///Swing:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swing")
-		AActor* NearestGrappleHook;
+		AGrappleHook* NearestGrappleHook;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swing")
-		AActor* GrabbedGrappleHook;
+		AGrappleHook* GrabbedGrappleHook;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swing")
 		UMaterialInstanceDynamic* CurHookMatInst;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swing")

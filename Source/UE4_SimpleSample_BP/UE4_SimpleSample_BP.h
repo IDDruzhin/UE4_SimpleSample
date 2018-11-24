@@ -8,11 +8,11 @@
 #include "Runtime/Engine/Classes/Camera/CameraComponent.h"
 #include "Runtime/Engine/Classes/Components/CapsuleComponent.h"
 #include "Runtime/Engine/Classes/Components/InputComponent.h"
-#include "Runtime/Engine/Classes/Components/InputComponent.h"
 #include "Runtime/Engine/Classes/GameFramework/CharacterMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 #include "Runtime/Engine/Classes/Materials/MaterialInstance.h"
 //#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "CableComponent.h"
+#include "Runtime/Engine/Classes/Components/SphereComponent.h"
 #include "Engine.h"
 
