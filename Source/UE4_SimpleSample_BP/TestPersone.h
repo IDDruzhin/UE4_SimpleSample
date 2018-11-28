@@ -48,8 +48,12 @@ protected:
 	virtual void WallRunActivate();
 	virtual void WallRunDeactivate();
 
+	virtual void ActionPressed();
+	virtual void ActionReleased();
+
 	void LineTraceWalls();
 	void WallRun();
+	void UpdateGrapplePoint();
 
 	UFUNCTION()
 		void SetWallRunLocation();
@@ -86,6 +90,10 @@ protected:
 		FTimerHandle WallRunTimer;
 	UPROPERTY(EditAnywhere)
 		FTimerHandle SearchHookTimer;
+	UPROPERTY(EditAnywhere)
+		FTimerHandle RHandFlyToPointTimer;
+	UPROPERTY(EditAnywhere)
+		FTimerHandle RHandFlyBackTimer;
 
 	///States:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
@@ -134,10 +142,10 @@ protected:
 		FVector RHandStartPos;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
 		FVector RHandCurPos;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
-		FVector RHandFinishPos;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
-		float RHandFlyTime;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
+		//FVector RHandFinishPos;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
+		//float RHandFlyTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
 		FVector GrapplePoint;
 
