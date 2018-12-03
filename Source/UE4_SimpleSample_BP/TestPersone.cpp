@@ -1,15 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "TestPersone.h"
-//#include "CableComponent.h"
-//#include "UE4_SimpleSample_BP.h"
-
 
 // Sets default values
 ATestPersone::ATestPersone()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-
 	PrimaryActorTick.bCanEverTick = true;
 	bUseControllerRotationYaw = false;
 	JumpMaxCount = 2;
@@ -22,6 +18,9 @@ ATestPersone::ATestPersone()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.f;
 	CameraBoom->bUsePawnControlRotation = true;
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(CameraBoom);
 
 	GetMesh()->SetRelativeLocation(FVector(2.322250f, -0.000035f, -87.684875f));
 	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
@@ -56,8 +55,6 @@ ATestPersone::ATestPersone()
 	L_Link->NumSides = 6;
 	L_Link->RelativeLocation = FVector(0.300961f, 0.080305f, 0.101101f);
 
-	//USkeletalMesh* Tmp = LoadObject<USkeletalMesh>(NULL, TEXT("RHandMesh"), TEXT("/Content/Characters/Meshes/Test_Persone_R_Hand.uasset"));
-	//R_Hand->SetSkeletalMesh(Tmp);
 	{
 		ConstructorHelpers::FObjectFinder<USkeletalMesh> Tmp(TEXT("SkeletalMesh'/Game/Characters/Meshes/Test_Persone_Body.Test_Persone_Body'"));
 		GetMesh()->SetSkeletalMesh(Tmp.Object);
@@ -72,28 +69,25 @@ ATestPersone::ATestPersone()
 		GetMesh()->SetAnimInstanceClass(DynamicBP);
 		R_Hand->SetAnimInstanceClass(DynamicBP);
 		L_Hand->SetAnimInstanceClass(DynamicBP);
-		//GetMesh()->SetAnimInstanceClass(Tmp.Object->GetAnimBlueprintGeneratedClass());
-		//R_Hand->SetAnimInstanceClass(Tmp.Object->GetAnimBlueprintGeneratedClass());
-		//L_Hand->SetAnimInstanceClass(Tmp.Object->GetAnimBlueprintGeneratedClass());
 	}
 	{
 		ConstructorHelpers::FObjectFinder<UMaterial> Tmp(TEXT("Material'/Game/Characters/Meshes/LinkMaterial.LinkMaterial'"));
 		R_Link->SetMaterial(0, Tmp.Object);
 		L_Link->SetMaterial(0, Tmp.Object);
 	}
-	
-	//R_Hand->SetSkeletalMesh(Tmp.Object);
-	//R_Hand->SetSkeletalMesh(LoadObject<USkeletalMesh>(NULL, TEXT("RHandMesh"), TEXT("SkeletalMesh'/Game/Characters/Meshes/Test_Persone_R_Hand.Test_Persone_R_Hand'")));
-	//R_Hand->SetAnimInstanceClass(LoadObject<UAnimBlueprintGeneratedClass>(NULL, TEXT("RHandAnim"), TEXT("AnimBlueprint'/Game/Characters/Anims/Test_Persone_Anim_BP.Test_Persone_Anim_BP'")));
+	{
+		ConstructorHelpers::FObjectFinder<UPhysicsAsset> Tmp(TEXT("PhysicsAsset'/Game/Characters/Meshes/Test_Persone_L_Hand_PhysicsAsset.Test_Persone_L_Hand_PhysicsAsset'"));
+		L_Hand_PA = Tmp.Object;
+		Tmp = ConstructorHelpers::FObjectFinder<UPhysicsAsset>(TEXT("PhysicsAsset'/Game/Characters/Meshes/Test_Persone_R_Hand_PhysicsAsset.Test_Persone_R_Hand_PhysicsAsset'"));
+		R_Hand_PA = Tmp.Object;
+	}
 
-	//R_Link = CreateDefaultSubobject<UCableComponent>(TEXT("R_Link"));
-
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(CameraBoom);
-
-	//GetWorld()->GetTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
-	//GetWorldTimerManager().SetTimer(WallRunTimer, &ATestPersone::SetWallRunLocation, 1.0f, true);
-	//GetWorldTimerManager().PauseTimer(WallRunTimer);
+	GetMesh()->SetCollisionProfileName(FName(TEXT("Pawn")));
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	L_Hand->SetCollisionProfileName(FName(TEXT("Pawn")));
+	L_Hand->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	R_Hand->SetCollisionProfileName(FName(TEXT("Pawn")));
+	R_Hand->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 
 	NearestGrappleHook = nullptr;
 	GrabbedGrappleHook = nullptr;
@@ -109,25 +103,13 @@ ATestPersone::ATestPersone()
 void ATestPersone::BeginPlay()
 {
 	Super::BeginPlay();
-	GetWorldTimerManager().SetTimer(SearchHookTimer, this, &ATestPersone::SearchHook, 0.1f, true);
-	//GetWorldTimerManager().SetTimer(RHandFlyToPointTimer, this, &ATestPersone::RHandFlyToPoint, 0.001f, true);
-	//GetWorldTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
-	//GetWorldTimerManager().PauseTimer(WallRunTimer);
-	//FTimerDelegate TimerD;
-	//GetWorldTimerManager().SetTimer(WallRunTimer, this, &ATestPersone::SetWallRunLocation, 1.0f, true);
-	/*
-	TimerD.BindUFunction(this, FName("TestFoo"), 10.0f);
-	GetWorld()->GetTimerManager().SetTimer(JumpTimer, TimerD, 1.0f, true);
-	TimerD.BindUFunction(this, FName("TestFoo"), 200.0f);
-	GetWorld()->GetTimerManager().SetTimer(FlyTimer, TimerD, 2.0f, true);
-	*/
-	//TestFoo(TEXT("START"));
-	
+	L_Hand->SetMasterPoseComponent(GetMesh());
+	R_Hand->SetMasterPoseComponent(GetMesh());
+	GetWorldTimerManager().SetTimer(SearchHookTimer, this, &ATestPersone::SearchHook, 0.1f, true);	
 }
 
 void ATestPersone::OnJumped_Implementation()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, FString::FromInt((int)(DoJump)));
 	DoJump = true;
 	GetWorldTimerManager().SetTimer(JumpTimer, [this]() { DoJump = false; }, 0.1f, false);
 }
@@ -164,7 +146,7 @@ void ATestPersone::CalculateVectors()
 
 void ATestPersone::JumpAction()
 {
-	CurConnectionDelta = 10.0f;
+	CurConnectionDelta = -10.0f;
 	if (IsWallRunning)
 	{
 		FVector LaunchVelocity = HitWallNormal * 600.0f;
@@ -195,10 +177,6 @@ void ATestPersone::JumpStopAction()
 	CurConnectionDelta = 0.0f;
 }
 
-void ATestPersone::IncreaseConnectionAction()
-{
-}
-
 void ATestPersone::WallRunActivate()
 {
 	WallRunActivity = true;
@@ -218,6 +196,7 @@ void ATestPersone::ActionPressed()
 		if (RHandGrabStatus == HandGrabStatus::FREE)
 		{
 			RHandStartPos = GetMesh()->GetSocketLocation(FName(TEXT("R_ForeArm_00Socket")));
+			RHandCurPos = RHandStartPos;
 		}
 		else
 		{
@@ -225,6 +204,7 @@ void ATestPersone::ActionPressed()
 		}
 		RHandGrabStatus = HandGrabStatus::FLYING_TO_GRAPPLE_POINT;
 		CurConnectionDist = FVector::Distance(GetActorLocation(), GrabbedGrappleHook->GetActorLocation());
+		CurConnectionDist = UKismetMathLibrary::FClamp(CurConnectionDist, 100.0f, MaxConnectionDist);
 		float TimerRate = 1.5f * CurConnectionDist / MaxConnectionDist;
 		GetWorldTimerManager().SetTimer(RHandFlyToPointTimer, [this]() { RHandGrabStatus = HandGrabStatus::GRABBING; }, TimerRate, false);
 	}
@@ -241,6 +221,51 @@ void ATestPersone::ActionReleased()
 		GetWorldTimerManager().SetTimer(RHandFlyBackTimer, [this]() { RHandGrabStatus = HandGrabStatus::FREE; }, TimerRate, false);
 	}
 	
+}
+
+void ATestPersone::FixConnection()
+{
+	IsConnectionFixed = true;
+}
+
+void ATestPersone::UnfixConnection()
+{
+	IsConnectionFixed = false;
+}
+
+void ATestPersone::IncreaseConnectionPressed()
+{
+	CurConnectionDelta = 10.0f;
+}
+
+void ATestPersone::IncreaseConnectionReleased()
+{
+	CurConnectionDelta = 0.0f;
+}
+
+void ATestPersone::ToggleRagdoll()
+{
+	if (Ragdoll)
+	{
+		GetWorld()->GetFirstPlayerController()->Possess(GetWorld()->SpawnActor<ATestPersone>(GetActorLocation(),GetActorRotation()));
+	}
+	else
+	{
+		L_Hand->SetMasterPoseComponent(nullptr);
+		R_Hand->SetMasterPoseComponent(nullptr);
+		L_Link->ToggleVisibility();
+		R_Link->ToggleVisibility();
+		{
+			L_Hand->SetPhysicsAsset(L_Hand_PA, true);
+			R_Hand->SetPhysicsAsset(R_Hand_PA, true);
+		}
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		GetMesh()->SetSimulatePhysics(true);
+		L_Hand->SetSimulatePhysics(true);
+		R_Hand->SetSimulatePhysics(true);
+		GetCharacterMovement()->Deactivate();
+		Ragdoll = true;
+	}
 }
 
 void ATestPersone::LineTraceWalls()
@@ -331,10 +356,48 @@ void ATestPersone::UpdateGrapplePoint()
 	}
 }
 
+void ATestPersone::Swing()
+{
+	if (RHandGrabStatus == HandGrabStatus::FREE)
+	{
+		return;
+	}
+	if (RHandGrabStatus == HandGrabStatus::GRABBING)
+	{
+		if (IsConnectionFixed && GetMovementComponent()->IsFalling())
+		{
+			CurConnectionDist = UKismetMathLibrary::FClamp(CurConnectionDist + CurConnectionDelta, 100.0f, MaxConnectionDist);
+		}
+	}
+	FVector ActorToHookV = GrabbedGrappleHook->GetActorLocation() - GetActorLocation();
+	if (!(IsConnectionFixed && RHandGrabStatus == HandGrabStatus::GRABBING))
+	{
+		CurConnectionDist = UKismetMathLibrary::FClamp(ActorToHookV.Size(), 100.0f, MaxConnectionDist);
+	}
+	FHitResult Hit;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, GrabbedGrappleHook->GetActorLocation(), GetMesh()->GetSocketLocation(FName(TEXT("R_ForeArm_00Socket"))), ECollisionChannel::ECC_Visibility))
+	{
+		GetCharacterMovement()->Velocity = ((GetCharacterMovement()->Velocity).Size() + 20.0f) * Hit.Normal;
+	}
+	if ((RHandGrabStatus == HandGrabStatus::GRABBING) && (CurConnectionDist == MaxConnectionDist || IsConnectionFixed))
+	{
+		if (GetMovementComponent()->IsFalling())
+		{
+			GetCharacterMovement()->AddForce(ActorToHookV.GetSafeNormal() * (FVector::DotProduct(ActorToHookV, GetVelocity())) * -2.0f);
+		}
+		FHitResult SweepHit;
+		SetActorLocation(GrabbedGrappleHook->GetActorLocation() - ActorToHookV.GetSafeNormal() * CurConnectionDist, true, &SweepHit);
+		if (SweepHit.bBlockingHit)
+		{
+			GetCharacterMovement()->AddForce(SweepHit.Normal * 1000000.0f);
+			CurConnectionDist = (GrabbedGrappleHook->GetActorLocation() - GetActorLocation()).Size();
+		}
+	}
+}
+
 void ATestPersone::SetWallRunLocation()
 {
 	SetActorLocation(HitWallLocation + HitWallNormal * 40.0f);
-	//GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Correct"));
 }
 
 void ATestPersone::SearchHook()
@@ -354,8 +417,6 @@ void ATestPersone::SearchHook()
 		});
 		FHitResult LineHit;
 		AActor* CurCrappleHook;
-		//FCollisionQueryParams CollParams;
-		//CollParams.AddIgnoredActor(this);
 		for (int i = 0; i < HitResDistances.Num(); i++)
 		{
 			CurCrappleHook = Cast<AGrappleHook>(HitResults[HitResDistances[i].Get<1>()].GetActor());
@@ -363,9 +424,9 @@ void ATestPersone::SearchHook()
 			{
 				continue;
 			}
-			CanHook = true;
 			if (!(GetWorld()->LineTraceSingleByChannel(LineHit, GetActorLocation(), CurCrappleHook->GetActorLocation(), ECollisionChannel::ECC_Visibility)))
 			{
+				CanHook = true;
 				if (NearestGrappleHook != CurCrappleHook)
 				{
 					if (CurHookMatInst != nullptr)
@@ -405,6 +466,7 @@ void ATestPersone::Tick(float DeltaTime)
 	LineTraceWalls();
 	WallRun();
 	UpdateGrapplePoint();
+	Swing();
 
 	///Timers:
 	if (GetWorldTimerManager().IsTimerActive(RHandFlyToPointTimer))
@@ -431,13 +493,26 @@ void ATestPersone::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("WallRun", IE_Released, this, &ATestPersone::WallRunDeactivate);
 	PlayerInputComponent->BindAction("Action", IE_Pressed, this, &ATestPersone::ActionPressed);
 	PlayerInputComponent->BindAction("Action", IE_Released, this, &ATestPersone::ActionReleased);
+	PlayerInputComponent->BindAction("FixConnection", IE_Pressed, this, &ATestPersone::FixConnection);
+	PlayerInputComponent->BindAction("FixConnection", IE_Released, this, &ATestPersone::UnfixConnection);
+	PlayerInputComponent->BindAction("IncreaseConnection", IE_Pressed, this, &ATestPersone::IncreaseConnectionPressed);
+	PlayerInputComponent->BindAction("IncreaseConnection", IE_Released, this, &ATestPersone::IncreaseConnectionReleased);
+	PlayerInputComponent->BindAction("Ragdoll", IE_Pressed, this, &ATestPersone::ToggleRagdoll);
 }
 
-void ATestPersone::PostInitProperties()
+void ATestPersone::Destroyed()
 {
-	Super::PostInitProperties();
-	//GetMesh()->SetAnimInstanceClass(DynamicBP);
-	//CameraBoom->SetRelativeLocationAndRotation(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 90.0f));
+	Super::Destroyed();
+	if (GetWorld())
+	{
+		if (GetWorld()->GetFirstPlayerController())
+		{
+			if (GetWorld()->GetFirstPlayerController()->GetPawn() == nullptr)
+			{
+				UGameplayStatics::OpenLevel(this, FName(*(GetWorld()->GetName())));
+			}
+		}
+	}
 }
 
 

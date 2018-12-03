@@ -6,9 +6,6 @@
 #include "GameFramework/Character.h"
 #include "UE4_SimpleSample_BP.h"
 #include "GrappleHook.h"
-//#include "GameFramework/SpringArmComponent.h"
-//#include "Runtime/Engine/Classes/Camera/CameraComponent.h"
-//#include "Runtime/Engine/Classes/Components/CapsuleComponent.h"
 #include "TestPersone.generated.h"
 
 UENUM(BlueprintType)
@@ -43,17 +40,21 @@ protected:
 	virtual void CalculateVectors();
 	virtual void JumpAction();
 	virtual void JumpStopAction();
-	virtual void IncreaseConnectionAction();
-
 	virtual void WallRunActivate();
 	virtual void WallRunDeactivate();
-
 	virtual void ActionPressed();
 	virtual void ActionReleased();
+	virtual void FixConnection();
+	virtual void UnfixConnection();
+	virtual void IncreaseConnectionPressed();
+	virtual void IncreaseConnectionReleased();
+	virtual void ToggleRagdoll();
 
+	//Tick
 	void LineTraceWalls();
 	void WallRun();
 	void UpdateGrapplePoint();
+	void Swing();
 
 	UFUNCTION()
 		void SetWallRunLocation();
@@ -72,6 +73,10 @@ protected:
 		USkeletalMeshComponent* L_Hand;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UAnimBlueprintGeneratedClass* DynamicBP;
+	UPROPERTY(EditAnywhere)
+		UPhysicsAsset* R_Hand_PA;
+	UPROPERTY(EditAnywhere)
+		UPhysicsAsset* L_Hand_PA;
 			
 	UPROPERTY(EditAnywhere)
 		UCableComponent* R_Link;
@@ -142,10 +147,6 @@ protected:
 		FVector RHandStartPos;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
 		FVector RHandCurPos;
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
-		//FVector RHandFinishPos;
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
-		//float RHandFlyTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
 		FVector GrapplePoint;
 
@@ -159,7 +160,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void PostInitProperties() override;
 
+	virtual void Destroyed() override;
 	
 };

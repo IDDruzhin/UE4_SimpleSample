@@ -14,5 +14,6 @@
 //#include "Runtime/Engine/Classes/Components/SkeletalMeshComponent.h"
 #include "CableComponent.h"
 #include "Runtime/Engine/Classes/Components/SphereComponent.h"
+#include "Runtime/Engine/Classes/PhysicsEngine/PhysicsAsset.h"
 #include "Engine.h"
 

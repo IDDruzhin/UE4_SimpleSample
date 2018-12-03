@@ -32,6 +32,4 @@ public:
 	UFUNCTION()
 		UMaterialInstanceDynamic* GetMaterialInstance();
 
-	
-	
 };

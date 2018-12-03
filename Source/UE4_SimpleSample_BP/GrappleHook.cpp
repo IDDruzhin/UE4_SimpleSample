@@ -7,7 +7,7 @@
 AGrappleHook::AGrappleHook()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bCanEverTick = true;
 	SetRootComponent(CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent")));
 	Sphere = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Sphere"));
 	{
@@ -18,7 +18,6 @@ AGrappleHook::AGrappleHook()
 		ConstructorHelpers::FObjectFinder<UMaterialInstance> Tmp(TEXT("MaterialInstanceConstant'/Game/Levels/Actors/Hook_Material_Inst.Hook_Material_Inst'"));
 		Sphere->SetMaterial(0, Tmp.Object);
 	}
-	//SetRootComponent(Sphere);
 	Sphere->SetupAttachment(RootComponent);
 	Sphere->SetRelativeScale3D(FVector(0.493961f));
 	Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -33,15 +32,13 @@ AGrappleHook::AGrappleHook()
 // Called when the game starts or when spawned
 void AGrappleHook::BeginPlay()
 {
-	Super::BeginPlay();
-	
+	Super::BeginPlay();	
 }
 
 // Called every frame
 void AGrappleHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 UMaterialInstanceDynamic * AGrappleHook::GetMaterialInstance()
