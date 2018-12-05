@@ -62,9 +62,9 @@ protected:
 		void SearchHook();
 
 	///Components:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 		USpringArmComponent* CameraBoom;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 		UCameraComponent* Camera;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -77,81 +77,80 @@ protected:
 		UPhysicsAsset* R_Hand_PA;
 	UPROPERTY(EditAnywhere)
 		UPhysicsAsset* L_Hand_PA;
-			
 	UPROPERTY(EditAnywhere)
 		UCableComponent* R_Link;
 	UPROPERTY(EditAnywhere)
 		UCableComponent* L_Link;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 		FVector Forward;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 		FVector Right;
 
 	///Timers:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 		FTimerHandle JumpTimer;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 		FTimerHandle WallRunTimer;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 		FTimerHandle SearchHookTimer;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 		FTimerHandle RHandFlyToPointTimer;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 		FTimerHandle RHandFlyBackTimer;
 
 	///States:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
+	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool DoJump;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
+	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool HitWallForward;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
+	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool HitWallRight;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
+	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool HitWallLeft;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
+	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool WallRunActivity;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
+	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool IsWallRunning;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
+	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool Ragdoll;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
+	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool CanHook;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "States")
+	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool IsConnectionFixed;
 
 	///Walls:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Walls")
+	UPROPERTY(BlueprintReadWrite, Category = "Walls")
 		FVector HitWallNormal;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Walls")
+	UPROPERTY(BlueprintReadWrite, Category = "Walls")
 		FVector HitWallLocation;
 
 	///Swing:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swing")
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
 		AGrappleHook* NearestGrappleHook;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swing")
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
 		AGrappleHook* GrabbedGrappleHook;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swing")
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
 		UMaterialInstanceDynamic* CurHookMatInst;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swing")
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
 		float MaxConnectionDist;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Swing")
+	UPROPERTY(BlueprintReadWrite, Category="Swing")
 		float CurConnectionDist;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Swing")
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
 		float CurConnectionDelta;
 
 	///Hands:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
+	UPROPERTY(BlueprintReadWrite, Category = "Hands")
 		HandGrabStatus RHandGrabStatus;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
+	UPROPERTY(BlueprintReadWrite, Category = "Hands")
 		FVector RHandStartPos;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
+	UPROPERTY(BlueprintReadWrite, Category = "Hands")
 		FVector RHandCurPos;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hands")
+	UPROPERTY(BlueprintReadWrite, Category = "Hands")
 		FVector GrapplePoint;
 
 	///Misc:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Misc")
+	UPROPERTY(BlueprintReadWrite, Category = "Misc")
 		bool WallRunFlag;
 
 public:	

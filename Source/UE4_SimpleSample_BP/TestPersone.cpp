@@ -30,8 +30,10 @@ ATestPersone::ATestPersone()
 	L_Hand = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("L_Hand"));
 	L_Hand->SetupAttachment(GetMesh());
 
+	FAttachmentTransformRules AttachTransformRules(EAttachmentRule::KeepRelative, false);
 	R_Link = CreateDefaultSubobject<UCableComponent>(TEXT("R_Link"));
-	R_Link->AttachTo(R_Hand, FName(TEXT("R_ForeArm_00Socket")));
+	//R_Link->AttachTo(R_Hand, FName(TEXT("R_ForeArm_00Socket")));
+	R_Link->AttachToComponent(R_Hand, AttachTransformRules, FName(TEXT("R_ForeArm_00Socket")));
 	R_Link->bAttachStart = true;
 	R_Link->bAttachEnd = true;
 	R_Link->SetAttachEndTo(this, FName(TEXT("Mesh")), FName(TEXT("R_Hand")));
@@ -44,7 +46,8 @@ ATestPersone::ATestPersone()
 	R_Link->RelativeRotation = FRotator(0.0f, 0.00001f, 0.0f);
 
 	L_Link = CreateDefaultSubobject<UCableComponent>(TEXT("L_Link"));
-	L_Link->AttachTo(L_Hand, FName(TEXT("L_Arm_00")));
+	//L_Link->AttachTo(L_Hand, FName(TEXT("L_Arm_00")));
+	L_Link->AttachToComponent(L_Hand, AttachTransformRules, FName(TEXT("L_Arm_00")));
 	L_Link->bAttachStart = true;
 	L_Link->bAttachEnd = true;
 	L_Link->SetAttachEndTo(this, FName(TEXT("Mesh")), FName(TEXT("L_Arm_01")));

@@ -15,5 +15,9 @@
 #include "CableComponent.h"
 #include "Runtime/Engine/Classes/Components/SphereComponent.h"
 #include "Runtime/Engine/Classes/PhysicsEngine/PhysicsAsset.h"
+#include "Runtime/AIModule/Classes/Perception/PawnSensingComponent.h"
+#include "Runtime/AIModule/Classes/BehaviorTree/BlackboardComponent.h"
+#include "Runtime/AIModule/Classes/BehaviorTree/BehaviorTree.h"
+#include "Runtime/AIModule/Classes/Blueprint/AIBlueprintHelperLibrary.h"
 #include "Engine.h"
 
