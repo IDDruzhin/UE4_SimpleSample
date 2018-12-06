@@ -398,7 +398,7 @@ void ATestPersone::Swing()
 
 void ATestPersone::SetWallRunLocation()
 {
-	SetActorLocation(HitWallLocation + HitWallNormal * 40.0f);
+	SetActorLocation(HitWallLocation + HitWallNormal * 38.0f);
 }
 
 void ATestPersone::SearchHook()
