@@ -1,2 +1,4 @@
-# UE4_SimpleSample_BP
-Unreal Engine 4 3rd person blueprint project
+# UE4_SimpleSample
+Unreal Engine 4 3rd person game project
+
+Implementation via Blueprints and C++
