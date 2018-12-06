@@ -2,10 +2,16 @@
 
 #include "TestAIController.h"
 
-void ATestAIController::BeginPlay()
+ATestAIController::ATestAIController()
 {
 	ConstructorHelpers::FObjectFinder<UBehaviorTree> Tmp(TEXT("BehaviorTree'/Game/Characters/AI/Test_Bot_BT.Test_Bot_BT'"));
-	RunBehaviorTree(Tmp.Object);
+	BT = Tmp.Object;
+}
+
+void ATestAIController::BeginPlay()
+{
+	Super::BeginPlay();
+	RunBehaviorTree(BT);
 }
 
 

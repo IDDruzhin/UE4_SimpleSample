@@ -14,8 +14,15 @@ UCLASS()
 class UE4_SIMPLESAMPLE_BP_API ATestAIController : public AAIController
 {
 	GENERATED_BODY()
+
+public:
+	ATestAIController();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(BlueprintReadWrite)
+	UBehaviorTree* BT;
 
 };

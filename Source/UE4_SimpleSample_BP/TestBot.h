@@ -60,11 +60,18 @@ protected:
 
 	//Timers
 	UPROPERTY()
-		FTimerHandle SeeTargetTimer;
+		FTimerHandle LoseTargetTimer;
 	UPROPERTY()
-		FTimerHandle ChasingTimer;
+		FTimerHandle ChasingWaitTimer;
 	UPROPERTY()
 		FTimerHandle NavJumpTimer;
+	//Timers functions
+	UFUNCTION()
+		void LoseTarget();
+	UFUNCTION()
+		void ChasingWait();
+	UFUNCTION()
+		void NavJumpWait();
 
 	UFUNCTION(Category = "AI")
 		void OnSeePawn(APawn* SomePawn);

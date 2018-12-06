@@ -7,7 +7,7 @@
 ATestBot::ATestBot()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 	bUseControllerRotationYaw = false;
 	JumpMaxCount = 2;
 	JumpMaxHoldTime = 0.2f;
@@ -27,7 +27,6 @@ ATestBot::ATestBot()
 
 	FAttachmentTransformRules AttachTransformRules(EAttachmentRule::KeepRelative, false);
 	R_Link = CreateDefaultSubobject<UCableComponent>(TEXT("R_Link"));
-	//R_Link->AttachTo(R_Hand, FName(TEXT("R_ForeArm_00Socket")));
 	R_Link->AttachToComponent(R_Hand, AttachTransformRules, FName(TEXT("R_ForeArm_00Socket")));
 	R_Link->bAttachStart = true;
 	R_Link->bAttachEnd = true;
@@ -41,7 +40,6 @@ ATestBot::ATestBot()
 	R_Link->RelativeRotation = FRotator(0.0f, 0.00001f, 0.0f);
 
 	L_Link = CreateDefaultSubobject<UCableComponent>(TEXT("L_Link"));
-	//L_Link->AttachToComponent(L_Hand, FName(TEXT("L_Arm_00")));
 	L_Link->AttachToComponent(L_Hand, AttachTransformRules, FName(TEXT("L_Arm_00")));
 	L_Link->bAttachStart = true;
 	L_Link->bAttachEnd = true;
@@ -110,32 +108,41 @@ void ATestBot::BeginPlay()
 	GetMesh()->SetVectorParameterValueOnMaterials(ColorParam, BaseColor);
 	L_Hand->SetVectorParameterValueOnMaterials(ColorParam, BaseColor);
 	R_Hand->SetVectorParameterValueOnMaterials(ColorParam, BaseColor);
-	BlackBoard = UAIBlueprintHelperLibrary::GetBlackboard(GetController());
-	//BlackBoard->SetValueAsInt(BB_CurPatrolPointIndex, StartPatrolPoint);
-	/*
 	BlackBoard = UAIBlueprintHelperLibrary::GetBlackboard(this);
 	BlackBoard->SetValueAsInt(BB_CurPatrolPointIndex, StartPatrolPoint);
 	BlackBoard->SetValueAsObject(BB_CurPatrolPoint, TargetPoints[StartPatrolPoint]);
 	BlackBoard->SetValueAsBool(BB_SeeChaseObject, false);
 	BlackBoard->SetValueAsBool(BB_IsChasing, false);
-	*/
 }
 
 void ATestBot::OnSeePawn(APawn * SomePawn)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("See PAWN"));
 	ATestPersone* TPers = Cast<ATestPersone>(SomePawn);
 	if (TPers)
 	{
 		BlackBoard->SetValueAsObject(BB_ChaseObject, TPers);
 		BlackBoard->SetValueAsVector(BB_LastChasePos, TPers->GetActorLocation());
 		BlackBoard->SetValueAsBool(BB_SeeChaseObject, true);
-		GetWorldTimerManager().SetTimer(SeeTargetTimer, [this]() {
-			BlackBoard->SetValueAsBool(BB_IsChasing, true);
-			BlackBoard->SetValueAsBool(BB_SeeChaseObject, false);
-			GetWorldTimerManager().SetTimer(ChasingTimer, [this]() { BlackBoard->SetValueAsBool(BB_IsChasing, false); }, 3.0f, false);
-		}, 1.0f, false);
+		GetWorldTimerManager().ClearTimer(ChasingWaitTimer);
+		GetWorldTimerManager().SetTimer(LoseTargetTimer, this, &ATestBot::LoseTarget, 1.0f, false);
 	}
+}
+
+void ATestBot::LoseTarget()
+{
+	BlackBoard->SetValueAsBool(BB_IsChasing, true);
+	BlackBoard->SetValueAsBool(BB_SeeChaseObject, false);
+	GetWorldTimerManager().SetTimer(ChasingWaitTimer, this, &ATestBot::ChasingWait, 3.0f, false);
+}
+
+void ATestBot::ChasingWait()
+{
+	BlackBoard->SetValueAsBool(BB_IsChasing, false);
+}
+
+void ATestBot::NavJumpWait()
+{
+	BlackBoard->SetValueAsBool(BB_IsNavJumping, false);
 }
 
 void ATestBot::NavJump(FVector Destination, float Time, float Power)
@@ -144,21 +151,19 @@ void ATestBot::NavJump(FVector Destination, float Time, float Power)
 	FVector LaunchVelocity = (Destination - GetActorLocation()) / Time;
 	LaunchVelocity.Z = Power;
 	LaunchCharacter(LaunchVelocity, true, true);
-	GetWorldTimerManager().SetTimer(NavJumpTimer, [this]() { BlackBoard->SetValueAsBool(BB_IsNavJumping, false); }, Time, false);
+	GetWorldTimerManager().SetTimer(NavJumpTimer, this, &ATestBot::NavJumpWait, Time, false);
 }
 
 // Called every frame
 void ATestBot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void ATestBot::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void ATestBot::PostInitializeComponents()
