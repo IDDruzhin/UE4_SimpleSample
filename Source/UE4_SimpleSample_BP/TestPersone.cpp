@@ -72,7 +72,7 @@ ATestPersone::ATestPersone()
 		L_Hand->SetAnimInstanceClass(DynamicBP);
 	}
 	{
-		ConstructorHelpers::FObjectFinder<UMaterial> Tmp(TEXT("Material'/Game/Characters/Meshes/LinkMaterial.LinkMaterial'"));
+		ConstructorHelpers::FObjectFinder<UMaterialInstance> Tmp(TEXT("MaterialInstanceConstant'/Game/Characters/Meshes/LinkMaterial_Inst.LinkMaterial_Inst'"));
 		R_Link->SetMaterial(0, Tmp.Object);
 		L_Link->SetMaterial(0, Tmp.Object);
 	}
@@ -98,6 +98,18 @@ ATestPersone::ATestPersone()
 	CurConnectionDelta = 0.0f;
 	RHandGrabStatus = HandGrabStatus::FREE;
 	GrapplePoint = FVector(0.0f);
+	LinkFreeColor = FVector(1.0f,0.0f,0.03f);
+	LinkFreeOpacity = 0.5f;
+	LinkFreeEmissive = 0.0f;
+	LinkFixedColor = FVector(0.0f, 0.7f, 1.0f);
+	LinkFixedOpacity = 0.9f;
+	LinkFixedEmissive = 10.0f;
+	R_Link->SetVectorParameterValueOnMaterials(FName(TEXT("Color")), LinkFreeColor);
+	R_Link->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), LinkFreeOpacity);
+	R_Link->SetScalarParameterValueOnMaterials(FName(TEXT("Emissive")), LinkFreeEmissive);
+	L_Link->SetVectorParameterValueOnMaterials(FName(TEXT("Color")), LinkFreeColor);
+	L_Link->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), LinkFreeOpacity);
+	L_Link->SetScalarParameterValueOnMaterials(FName(TEXT("Emissive")), LinkFreeEmissive);
 }
 
 // Called when the game starts or when spawned
@@ -392,6 +404,23 @@ void ATestPersone::Swing()
 		{
 			GetCharacterMovement()->AddForce(SweepHit.Normal * 1000000.0f);
 			CurConnectionDist = (GrabbedGrappleHook->GetActorLocation() - GetActorLocation()).Size();
+		}
+		if (!IsLinkMatChanged)
+		{
+			R_Link->SetVectorParameterValueOnMaterials(FName(TEXT("Color")), LinkFixedColor);
+			R_Link->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), LinkFixedOpacity);
+			R_Link->SetScalarParameterValueOnMaterials(FName(TEXT("Emissive")), LinkFixedEmissive);
+			IsLinkMatChanged = true;
+		}
+	}
+	else
+	{
+		if (IsLinkMatChanged)
+		{
+			R_Link->SetVectorParameterValueOnMaterials(FName(TEXT("Color")), LinkFreeColor);
+			R_Link->SetScalarParameterValueOnMaterials(FName(TEXT("Opacity")), LinkFreeOpacity);
+			R_Link->SetScalarParameterValueOnMaterials(FName(TEXT("Emissive")), LinkFreeEmissive);
+			IsLinkMatChanged = false;
 		}
 	}
 }

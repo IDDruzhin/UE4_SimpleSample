@@ -119,6 +119,8 @@ protected:
 		bool CanHook;
 	UPROPERTY(BlueprintReadWrite, Category = "States")
 		bool IsConnectionFixed;
+	UPROPERTY(BlueprintReadWrite, Category = "States")
+		bool IsLinkMatChanged;
 
 	///Walls:
 	UPROPERTY(BlueprintReadWrite, Category = "Walls")
@@ -139,6 +141,18 @@ protected:
 		float CurConnectionDist;
 	UPROPERTY(BlueprintReadWrite, Category = "Swing")
 		float CurConnectionDelta;
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
+		FVector LinkFreeColor;
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
+		float LinkFreeOpacity;
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
+		float LinkFreeEmissive;
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
+		FVector LinkFixedColor;
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
+		float LinkFixedOpacity;
+	UPROPERTY(BlueprintReadWrite, Category = "Swing")
+		float LinkFixedEmissive;
 
 	///Hands:
 	UPROPERTY(BlueprintReadWrite, Category = "Hands")
