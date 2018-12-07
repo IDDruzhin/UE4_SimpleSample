@@ -55,6 +55,7 @@ protected:
 	void WallRun();
 	void UpdateGrapplePoint();
 	void Swing();
+	void CorrectFloor();
 
 	UFUNCTION()
 		void SetWallRunLocation();

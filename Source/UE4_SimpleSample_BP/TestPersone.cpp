@@ -396,6 +396,22 @@ void ATestPersone::Swing()
 	}
 }
 
+void ATestPersone::CorrectFloor()
+{
+	if (!(GetMovementComponent()->IsFalling() || DoJump))
+	{
+		FVector End = GetActorLocation();
+		End.Z -= GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 1.2f;
+		FHitResult Hit;
+		if (GetWorld()->LineTraceSingleByObjectType(Hit, GetActorLocation(), End, ECC_WorldDynamic))
+		{
+			FVector CorrectLoc = Hit.ImpactPoint;
+			CorrectLoc.Z += GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+			SetActorLocation(CorrectLoc);
+		}
+	}
+}
+
 void ATestPersone::SetWallRunLocation()
 {
 	SetActorLocation(HitWallLocation + HitWallNormal * 38.0f);
@@ -468,6 +484,7 @@ void ATestPersone::Tick(float DeltaTime)
 	WallRun();
 	UpdateGrapplePoint();
 	Swing();
+	CorrectFloor();
 
 	///Timers:
 	if (GetWorldTimerManager().IsTimerActive(RHandFlyToPointTimer))
